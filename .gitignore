@@ -1,0 +1,35 @@
+# Basic visual studio stuff
+*.suo
+*.user
+[Bb]in/
+[Oo]bj/
+.vs/
+
+
+!/Build/
+
+# Build output in Calculon.Web
+Calculon.Web/JsTemplates
+Calculon.Web/Content/test-assets/mocha-teamcity.js
+Calculon.Web/Content/admin/admin.js
+Calculon.Web/Content/admin/daterangepicker.css
+Calculon.Web/Content/admin/extra-settings.js
+Calculon.Web/Content/admin/vendor.js
+Calculon.Web/Content/admin/chunks
+Calculon.Web/Content/clc.js
+Calculon.Web/Content/clc.ie.js
+Calculon.Web/Content/dev-panel.js
+Calculon.Web/Content/**/*.min.js
+Calculon.Web/Content/**/*.min.css
+
+# But we *do* want these
+!Calculon.Web/JsTemplates/README.md
+!Calculon.Web/Content/admin/bootstrap/**/*
+!Calculon.Web/Content/admin/lib/**/*
+
+# Build, lib folders under client-packages
+Calculon.Web/client-packages/**/build*/
+Calculon.Web/client-packages/**/lib*/
+
+node_modules
+
