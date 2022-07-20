@@ -8,6 +8,37 @@ using System.Text.RegularExpressions;
 
 public static class Program
 {
+    public static async Task Main(string[] args)
+    {
+        // This works
+        await Program.RequestCliAccessTokenAsync_Fixed(true, context, CancellationToken.None);
+
+        try
+        {
+            // This does not work
+            await Program.RequestCliAccessTokenAsync_Original();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            Console.WriteLine(e.StackTrace);
+        }
+
+        try
+        {
+            // Neither does this
+            await new Azure.Identity.AzureCliCredential().GetTokenAsync(new TokenRequestContext(context));
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            Console.WriteLine(e.StackTrace);
+        }
+    }
+
+
+
+
     private static readonly string[] context = new [] { "https://database.windows.net//.default" };
     private const string WinAzureCLIError = "'az' is not recognized";
     private static readonly Regex AzNotFoundPattern = new Regex("az:(.*)not found");
@@ -216,18 +247,6 @@ public static class Program
     {
         return await new AzureCliCredentialOriginal().GetTokenAsync(new TokenRequestContext(context));
     }
-
-    public static async Task Main(string[] args)
-    {
-        // This works
-        await Program.RequestCliAccessTokenAsync_Fixed(true, context, CancellationToken.None);
-
-        // This does not work
-        await Program.RequestCliAccessTokenAsync_Original();
-
-        // Neither does this
-        await new Azure.Identity.AzureCliCredential().GetTokenAsync(new TokenRequestContext(context));
-    }
 }
 
 
@@ -239,7 +258,6 @@ public class AzureCliCredentialOriginal : TokenCredential
     private const string WinAzureCLIError = "'az' is not recognized";
     private const string AzureCliTimeoutError = "Azure CLI authentication timed out.";
     private const string AzureCliFailedError = "Azure CLI authentication failed due to an unknown error.";
-    private const int CliProcessTimeoutMs = 10000;
 
     // The default install paths are used to find Azure CLI if no path is specified. This is to prevent executing ou"
     private static readonly string DefaultPathWindows = @"C:\Program Files (x86)\Microsoft SDKs\Azure CLI";
@@ -247,11 +265,18 @@ public class AzureCliCredentialOriginal : TokenCredential
     private const string DefaultPathNonWindows = "/usr/bin:/usr/local/bin";
     private const string DefaultWorkingDirNonWindows = "/bin/";
     private static readonly string DefaultPath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? DefaultPathWindows : DefaultPathNonWindows;
-    private static readonly string DefaultWorkingDir = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? DefaultWorkingDir : DefaultWorkingDirNonWindows;
+    private static readonly string DefaultWorkingDir = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? DefaultWorkingDirWindows : DefaultWorkingDirNonWindows;
 
     private static readonly Regex AzNotFoundPattern = new Regex("az:(.*)not found");
 
     private readonly string _path;
+
+
+    public AzureCliCredentialOriginal()
+    {
+        var path = System.Environment.GetEnvironmentVariable("PATH");
+        _path = !string.IsNullOrEmpty(path) ? path : DefaultPath;
+    }
 
 
     /// <summary>
