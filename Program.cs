@@ -34,6 +34,17 @@ public static class Program
             Console.WriteLine(e.Message);
             Console.WriteLine(e.StackTrace);
         }
+
+        try
+        {
+            // Neither does this
+            await new Azure.Identity.DefaultAzureCredential().GetTokenAsync(new TokenRequestContext(context));
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            Console.WriteLine(e.StackTrace);
+        }
     }
 
 
